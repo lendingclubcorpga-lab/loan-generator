@@ -160,15 +160,15 @@ if st.button("🚀 Process My Loan Application", type="primary"):
             pdf.cell(0, 6, "By signing below, the applicant accepts the preliminary terms outlined in this letter.", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.ln(15)
             
-            # Lines for Signature and Date (Using native enum classes)
-            pdf.cell(100, 5, "_________________________________________", new_x=XPos.KEEP, new_y=YPos.KEEP)
-            pdf.cell(15, 5, "", new_x=XPos.KEEP, new_y=YPos.KEEP) 
+            # Lines for Signature and Date (Corrected to XPos.NONE and YPos.NONE)
+            pdf.cell(100, 5, "_________________________________________", new_x=XPos.NONE, new_y=YPos.NONE)
+            pdf.cell(15, 5, "", new_x=XPos.NONE, new_y=YPos.NONE) 
             pdf.cell(60, 5, "______________________", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             
             # Labels under lines
             pdf.set_font("Helvetica", "I", 9)
-            pdf.cell(100, 5, "Applicant Signature", new_x=XPos.KEEP, new_y=YPos.KEEP)
-            pdf.cell(15, 5, "", new_x=XPos.KEEP, new_y=YPos.KEEP) 
+            pdf.cell(100, 5, "Applicant Signature", new_x=XPos.NONE, new_y=YPos.NONE)
+            pdf.cell(15, 5, "", new_x=XPos.NONE, new_y=YPos.NONE) 
             pdf.cell(60, 5, "Date", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             
             # Output PDF directly to bytes array
