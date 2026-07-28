@@ -103,7 +103,7 @@ if st.button("🚀 Process My Loan Application", type="primary"):
             
             # Document Metadata Header
             pdf.set_font("Helvetica", "B", 16)
-            pdf.cell(0, 10, "PRE-APPROVAL LOAN LETTER", align="L")
+            pdf.cell(0, 10, "APPROVAL LOAN LETTER", align="L")
             pdf.ln(10)
             pdf.set_font("Helvetica", "", 10)
             pdf.cell(0, 5, f"Issued Date: {today.strftime('%B %d, %Y')}", align="L")
@@ -115,7 +115,7 @@ if st.button("🚀 Process My Loan Application", type="primary"):
             pdf.set_font("Helvetica", "", 11)
             intro_text = (
                 f"Dear {full_name},\n\n"
-                f"We are pleased to inform you that you have been pre-approved for an Avant personal loan offer "
+                f"We are pleased to inform you that you have been approved for an Avant personal loan offer "
                 f"based on the initial application parameters submitted to our web terminal. Below you will find your customized "
                 f"financial breakdown details, automated APR calculations, and disclosure terms:"
             )
