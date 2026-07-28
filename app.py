@@ -148,7 +148,7 @@ if st.button("🚀 Process My Loan Application", type="primary"):
             pdf.ln(5)
             pdf.set_font("Helvetica", "I", 9)
             terms_text = (
-                "1. This pre-approval represents a conditional evaluation and does not constitute an explicit binding agreement or contract.\n"
+                "1. This approval represents a conditional evaluation and does not constitute an explicit binding agreement or contract.\n"
                 "2. Final funding remains conditional upon complete verification of identity, credit history validation, and income documentation.\n"
                 "3. Origination fees are deducted directly from loan proceeds at funding and are incorporated into your total cost schedule.\n"
                 "4. APR formulas are derived using strict financial internal rate of return metrics based on actual net disbursed loan balances."
@@ -182,7 +182,7 @@ if st.button("🚀 Process My Loan Application", type="primary"):
             st.download_button(
                 label="📥 Download Your Avant Approval Letter (PDF)",
                 data=bytes(pdf_bytes),
-                file_name=f"Avant_Approval_{full_name.replace(' ', '_')}.pdf",
+                file_name=f"Approval_{full_name.replace(' ', '_')}.pdf",
                 mime="application/pdf",
                 use_container_width=True
             )
