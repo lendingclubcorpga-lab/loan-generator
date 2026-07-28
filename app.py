@@ -1,5 +1,6 @@
 import streamlit as st
 from fpdf import FPDF
+from fpdf.enums import XPos, YPos
 import datetime
 from dateutil.relativedelta import relativedelta
 
@@ -92,9 +93,9 @@ if st.button("🚀 Process My Loan Application", type="primary"):
             # Text Avant Logo over the colored banner
             pdf.set_text_color(255, 255, 255)
             pdf.set_font("Helvetica", "B", 24)
-            pdf.cell(0, 15, "AVANT", align="L", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(0, 15, "AVANT", align="L", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.set_font("Helvetica", "", 10)
-            pdf.cell(0, 5, "Personal Loans & Financial Services", align="L", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(0, 5, "Personal Loans & Financial Services", align="L", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.ln(15)
             
             # Reset font text color to dark grey for document body
@@ -102,10 +103,10 @@ if st.button("🚀 Process My Loan Application", type="primary"):
             
             # Document Metadata Header
             pdf.set_font("Helvetica", "B", 16)
-            pdf.cell(0, 10, "PRE-APPROVAL LOAN LETTER", align="L", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(0, 10, "PRE-APPROVAL LOAN LETTER", align="L", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.set_font("Helvetica", "", 10)
-            pdf.cell(0, 5, f"Issued Date: {today.strftime('%B %d, %Y')}", align="L", new_x="LMARGIN", new_y="NEXT")
-            pdf.cell(0, 5, f"Offer Expiration: {(today + datetime.timedelta(days=30)).strftime('%B %d, %Y')}", align="L", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(0, 5, f"Issued Date: {today.strftime('%B %d, %Y')}", align="L", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+            pdf.cell(0, 5, f"Offer Expiration: {(today + datetime.timedelta(days=30)).strftime('%B %d, %Y')}", align="L", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.ln(10)
             
             # Content Block Paragraph
@@ -124,7 +125,7 @@ if st.button("🚀 Process My Loan Application", type="primary"):
                 pdf.set_font("Helvetica", "B", 11)
                 pdf.cell(90, 9, f" {label}", border=1)
                 pdf.set_font("Helvetica", "", 11)
-                pdf.cell(95, 9, f" {val}", border=1, new_x="LMARGIN", new_y="NEXT")
+                pdf.cell(95, 9, f" {val}", border=1, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
             add_table_row("Requested Loan Amount (Principal):", f"${loan_amount:,.2f}")
             add_table_row("Stated Base Interest Rate:", f"{fixed_interest_rate*100:.2f}% Fixed")
@@ -140,7 +141,7 @@ if st.button("🚀 Process My Loan Application", type="primary"):
             
             # Legal Boilerplate Terms & Conditions Layout
             pdf.set_font("Helvetica", "B", 10)
-            pdf.cell(0, 5, "Mandatory Regulatory Disclosures:", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(0, 5, "Mandatory Regulatory Disclosures:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.set_font("Helvetica", "I", 9)
             terms_text = (
                 "1. This pre-approval represents a conditional evaluation and does not constitute an explicit binding agreement or contract.\n"
@@ -152,23 +153,23 @@ if st.button("🚀 Process My Loan Application", type="primary"):
             
             pdf.ln(15)
             
-            # 5. Formal Signature Section (Fixed NONE string parameters to 'keep')
+            # 5. Formal Signature Section
             pdf.set_font("Helvetica", "B", 11)
-            pdf.cell(0, 6, "Acknowledgment and Acceptance of Terms:", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(0, 6, "Acknowledgment and Acceptance of Terms:", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.set_font("Helvetica", "", 10)
-            pdf.cell(0, 6, "By signing below, the applicant accepts the preliminary terms outlined in this letter.", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(0, 6, "By signing below, the applicant accepts the preliminary terms outlined in this letter.", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.ln(15)
             
-            # Lines for Signature and Date (Fixed positioning layout strings)
-            pdf.cell(100, 5, "_________________________________________", new_x="keep", new_y="keep")
-            pdf.cell(15, 5, "", new_x="keep", new_y="keep") 
-            pdf.cell(60, 5, "______________________", new_x="LMARGIN", new_y="NEXT")
+            # Lines for Signature and Date (Using native enum classes)
+            pdf.cell(100, 5, "_________________________________________", new_x=XPos.KEEP, new_y=YPos.KEEP)
+            pdf.cell(15, 5, "", new_x=XPos.KEEP, new_y=YPos.KEEP) 
+            pdf.cell(60, 5, "______________________", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             
             # Labels under lines
             pdf.set_font("Helvetica", "I", 9)
-            pdf.cell(100, 5, "Applicant Signature", new_x="keep", new_y="keep")
-            pdf.cell(15, 5, "", new_x="keep", new_y="keep") 
-            pdf.cell(60, 5, "Date", new_x="LMARGIN", new_y="NEXT")
+            pdf.cell(100, 5, "Applicant Signature", new_x=XPos.KEEP, new_y=YPos.KEEP)
+            pdf.cell(15, 5, "", new_x=XPos.KEEP, new_y=YPos.KEEP) 
+            pdf.cell(60, 5, "Date", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             
             # Output PDF directly to bytes array
             pdf_bytes = pdf.output()
