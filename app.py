@@ -136,7 +136,7 @@ if st.button("🚀 Process My Loan Application", type="primary"):
             add_table_row("Total Repayment Amount:", f"${total_repayment_amount:,.2f}")
             add_table_row("Payoff Date:", payoff_date.strftime("%B %d, %Y"))
             
-            pdf.ln(12)
+            pdf.ln(8)
             
             # Legal Boilerplate Terms & Conditions Layout
             pdf.set_font("Helvetica", "B", 10)
@@ -150,10 +150,30 @@ if st.button("🚀 Process My Loan Application", type="primary"):
             )
             pdf.multi_cell(0, 5, terms_text)
             
+            pdf.ln(15)
+            
+            # 5. Formal Signature Section
+            pdf.set_font("Helvetica", "B", 11)
+            pdf.cell(0, 6, "Acknowledgment and Acceptance of Terms:", new_x="LMARGIN", new_y="NEXT")
+            pdf.set_font("Helvetica", "", 10)
+            pdf.cell(0, 6, "By signing below, the applicant accepts the preliminary terms outlined in this letter.", new_x="LMARGIN", new_y="NEXT")
+            pdf.ln(15) # Space for physical/digital signature line
+            
+            # Lines for Signature and Date
+            pdf.cell(100, 5, "_________________________________________", new_x="NONE", new_y="NONE")
+            pdf.cell(15, 5, "") # Spacer
+            pdf.cell(60, 5, "______________________", new_x="LMARGIN", new_y="NEXT")
+            
+            # Labels under lines
+            pdf.set_font("Helvetica", "I", 9)
+            pdf.cell(100, 5, "Applicant Signature", new_x="NONE", new_y="NONE")
+            pdf.cell(15, 5, "") # Spacer
+            pdf.cell(60, 5, "Date", new_x="LMARGIN", new_y="NEXT")
+            
             # Output PDF directly to bytes array
             pdf_bytes = pdf.output()
             
-            # 5. Display download link directly on screen
+            # 6. Display download link directly on screen
             st.download_button(
                 label="📥 Download Your Avant Approval Letter (PDF)",
                 data=bytes(pdf_bytes),
