@@ -152,22 +152,22 @@ if st.button("🚀 Process My Loan Application", type="primary"):
             
             pdf.ln(15)
             
-            # 5. Formal Signature Section
+            # 5. Formal Signature Section (Fixed NONE string parameters to 'keep')
             pdf.set_font("Helvetica", "B", 11)
             pdf.cell(0, 6, "Acknowledgment and Acceptance of Terms:", new_x="LMARGIN", new_y="NEXT")
             pdf.set_font("Helvetica", "", 10)
             pdf.cell(0, 6, "By signing below, the applicant accepts the preliminary terms outlined in this letter.", new_x="LMARGIN", new_y="NEXT")
-            pdf.ln(15) # Space for physical/digital signature line
+            pdf.ln(15)
             
-            # Lines for Signature and Date
-            pdf.cell(100, 5, "_________________________________________", new_x="NONE", new_y="NONE")
-            pdf.cell(15, 5, "") # Spacer
+            # Lines for Signature and Date (Fixed positioning layout strings)
+            pdf.cell(100, 5, "_________________________________________", new_x="keep", new_y="keep")
+            pdf.cell(15, 5, "", new_x="keep", new_y="keep") 
             pdf.cell(60, 5, "______________________", new_x="LMARGIN", new_y="NEXT")
             
             # Labels under lines
             pdf.set_font("Helvetica", "I", 9)
-            pdf.cell(100, 5, "Applicant Signature", new_x="NONE", new_y="NONE")
-            pdf.cell(15, 5, "") # Spacer
+            pdf.cell(100, 5, "Applicant Signature", new_x="keep", new_y="keep")
+            pdf.cell(15, 5, "", new_x="keep", new_y="keep") 
             pdf.cell(60, 5, "Date", new_x="LMARGIN", new_y="NEXT")
             
             # Output PDF directly to bytes array
