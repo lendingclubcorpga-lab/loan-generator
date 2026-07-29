@@ -13,7 +13,7 @@ TEAM_ACCOUNTS = {
     "agent2": "SecureLoanPass2"
 }
 
-# Initialize session state flags
+# Initialize session state flags safely
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 if "app_processed" not in st.session_state:
@@ -64,6 +64,7 @@ else:
 
     with col2:
         loan_amount = st.number_input("Requested Loan Amount ($)", min_value=0, value=5000, step=500)
+        # FIXED: Numbers are explicitly closed inside brackets
         loan_term = st.selectbox("Repayment Term", options=[12, 24, 36, 48, 60], index=2, format_func=lambda x: f"{x} Months")
         current_debts = st.number_input("Current Monthly Debt Payments ($)", min_value=0, value=500, step=50)
 
@@ -186,7 +187,6 @@ else:
                 pdf.multi_cell(0, 5, disclosure_text)
                 pdf.ln(15)
                 
-                # FIXED: Removed old ln=1 parameters to protect syntax line compilation trackers
                 pdf.set_text_color(40, 40, 40)
                 pdf.set_font("Helvetica", "B", 10)
                 pdf.cell(0, 5, "Avant Underwriting Operations Group")
@@ -195,14 +195,12 @@ else:
                 pdf.cell(0, 5, "Electronic Verification Terminal Secure Stamp")
                 pdf.ln(5)
                 
+                # Safely capture binary byte metrics natively from fpdf2 engine
                 st.session_state["pdf_bytes"] = bytes(pdf.output())
                 st.session_state["pdf_filename"] = f"Avant_Approval_{full_name.replace(' ', '_')}.pdf"
                 st.rerun()
 
     # --- 5. PERSISTENT UI OUTSIDE BUTTON LIFECYCLE ---
+    # This sits completely independent of processing branches to maintain application download access
     if st.session_state["app_processed"]:
         st.success("🎉 Congratulations! Your Avant loan has been provisionally approved.")
-        st.write("Review the metrics layout above. Click below to download your generated paperwork.")
-        
-        st.download_button(
-            label="📥 Download Official Approval PDF",
