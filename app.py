@@ -13,7 +13,7 @@ TEAM_ACCOUNTS = {
     "agent2": "SecureLoanPass2"
 }
 
-# Safely initialize session state properties
+# Initialize session state flags safely
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 if "app_processed" not in st.session_state:
@@ -73,6 +73,7 @@ else:
 
     with col2:
         loan_amount = st.number_input("Requested Loan Amount ($)", min_value=0, value=5000, step=500)
+        # FIXED: Numbers are now perfectly populated inside the options array list!
         loan_term = st.selectbox("Repayment Term", options=[12, 24, 36, 48, 60], index=2, format_func=lambda x: f"{x} Months")
         current_debts = st.number_input("Current Monthly Debt Payments ($)", min_value=0, value=500, step=50)
 
