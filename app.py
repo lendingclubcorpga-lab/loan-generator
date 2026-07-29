@@ -64,7 +64,6 @@ else:
 
     with col2:
         loan_amount = st.number_input("Requested Loan Amount ($)", min_value=0, value=5000, step=500)
-        # FIXED: Numbers added inside the options array list here
         loan_term = st.selectbox("Repayment Term", options=[12, 24, 36, 48, 60], index=2, format_func=lambda x: f"{x} Months")
         current_debts = st.number_input("Current Monthly Debt Payments ($)", min_value=0, value=500, step=50)
 
@@ -173,7 +172,8 @@ else:
                 pdf.ln(10)
                 
                 pdf.set_font("Helvetica", "B", 12)
-                pdf.cell(0, 8, "Important Account Terms & Disclosures", ln=1)
+                pdf.cell(0, 8, "Important Account Terms & Disclosures")
+                pdf.ln(8)
                 pdf.set_font("Helvetica", "I", 9)
                 pdf.set_text_color(100, 100, 100)
                 
@@ -186,11 +186,14 @@ else:
                 pdf.multi_cell(0, 5, disclosure_text)
                 pdf.ln(15)
                 
+                # FIXED: Removed old ln=1 parameters to protect syntax line compilation trackers
                 pdf.set_text_color(40, 40, 40)
                 pdf.set_font("Helvetica", "B", 10)
-                pdf.cell(0, 5, "Avant Underwriting Operations Group", ln=1)
+                pdf.cell(0, 5, "Avant Underwriting Operations Group")
+                pdf.ln(5)
                 pdf.set_font("Helvetica", "", 10)
-                pdf.cell(0, 5, "Electronic Verification Terminal Secure Stamp", ln=1)
+                pdf.cell(0, 5, "Electronic Verification Terminal Secure Stamp")
+                pdf.ln(5)
                 
                 st.session_state["pdf_bytes"] = bytes(pdf.output())
                 st.session_state["pdf_filename"] = f"Avant_Approval_{full_name.replace(' ', '_')}.pdf"
@@ -203,5 +206,3 @@ else:
         
         st.download_button(
             label="📥 Download Official Approval PDF",
-            data=st.session_state["pdf_bytes"],
-            file_name=st.session_state["pdf_filename"],
