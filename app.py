@@ -162,6 +162,53 @@ else:
                 add_table_row("Requested Loan Amount (Principal):", f"${loan_amount:,.2f}")
                 add_table_row("Stated Base Interest Rate:", f"{fixed_interest_rate*100:.2f}% Fixed")
                 add_table_row("Annual Percentage Rate (APR):", f"{calculated_apr*100:.2f}% Dynamic")
+                                # --- PREVIOUS CODE ENDED HERE ---
+                add_table_row("Requested Loan Amount (Principal):", f"${loan_amount:,.2f}")
+                add_table_row("Stated Base Interest Rate:", f"{fixed_interest_rate*100:.2f}% Fixed")
+                add_table_row("Annual Percentage Rate (APR):", f"{calculated_apr*100:.2f}% Dynamic")
+                
+                # --- INSERT THIS MISSING CONTENT BELOW ---
+                # A. Complete the Financial Metrics Rows
+                add_table_row("Estimated Monthly Repayment:", f"${est_monthly_payment:,.2f} / Month")
+                add_table_row("Total Repayment Amount:", f"${total_repayment_amount:,.2f}")
+                add_table_row("Total Cost of Credit (Fees + Interest):", f"${total_cost_of_loan:,.2f}")
+                add_table_row("Final Scheduled Payoff Date:", payoff_date.strftime('%B %d, %Y'))
+                pdf.ln(10)
+                
+                # B. Add Regulatory & Closing Disclosures
+                pdf.set_font("Helvetica", "B", 12)
+                pdf.cell(0, 8, "Important Account Terms & Disclosures", ln=1)
+                pdf.set_font("Helvetica", "I", 9)
+                pdf.set_text_color(100, 100, 100)
+                
+                disclosure_text = (
+                    "This approval offer is contingent on verification of the stated monthly gross income metrics, "
+                    "credit file validation, and strict underwriting checks upon completion of full signing profiles. "
+                    "The APR calculations disclosed above conform to Truth-In-Lending Act (TILA) regulatory definitions. "
+                    "Funds are dispatched via ACH network transfer within 1 business day of final approval validation."
+                )
+                pdf.multi_cell(0, 5, disclosure_text)
+                pdf.ln(15)
+                
+                # C. Add Official Corporate Closing Signature Line
+                pdf.set_text_color(40, 40, 40)
+                pdf.set_font("Helvetica", "B", 10)
+                pdf.cell(0, 5, "Avant Underwriting Operations Group", ln=1)
+                pdf.set_font("Helvetica", "", 10)
+                pdf.cell(0, 5, "Electronic Verification Terminal Secure Stamp", ln=1)
+                
+                # --- SECURE BYTE COMPILATION AND DOWNLOAD BUTTON ---
+                pdf_bytes = bytes(pdf.output())
+                st.write("")
+                
+                st.download_button(
+                    label="📥 Download Official Approval PDF",
+                    data=pdf_bytes,
+                    file_name=f"Avant_Approval_{full_name.replace(' ', '_')}.pdf",
+                    mime="application/pdf",
+                    type="secondary"
+                )
+
                                 # --- REMOVE OLD ENCODING CODE ---
                 # Delete or comment out:
                 # pdf_string = pdf.output(dest='S')
