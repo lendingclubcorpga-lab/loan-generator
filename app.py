@@ -4,16 +4,18 @@ import datetime
 from dateutil.relativedelta import relativedelta
 
 # --- 1. GLOBAL PAGE CONFIGURATION ---
-# Crucial: This MUST be the first Streamlit command called and can only be called once!
+# This MUST be the first Streamlit command called and can only be executed once!
 st.set_page_config(page_title="Avant Instant Loan Portal", page_icon="💰")
 
 # --- 2. TEAM LOGIN CREDENTIALS CONFIGURATION ---
+# Define authorized User IDs and Passwords for your underwriting team
 TEAM_ACCOUNTS = {
     "admin": "AvantTeam2026!",
     "agent1": "SecureLoanPass1",
     "agent2": "SecureLoanPass2"
 }
 
+# Initialize login state tracking if it does not exist
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
@@ -23,18 +25,21 @@ if not st.session_state["logged_in"]:
     st.write("Please enter your authorized Team credentials to access the loan generator.")
     st.divider()
     
+    # Input fields for login credentials
     user_id = st.text_input("User ID", placeholder="Enter your user ID")
     password = st.text_input("Password", type="password", placeholder="Enter your password")
     
     if st.button("Log In", type="primary"):
+        # Check if the User ID exists and the password matches perfectly
         if user_id in TEAM_ACCOUNTS and TEAM_ACCOUNTS[user_id] == password:
             st.session_state["logged_in"] = True
-            st.rerun() 
+            st.rerun()  # Refresh the app immediately to swap views
         else:
             st.error("❌ Invalid User ID or Password. Please try again.")
 
 # --- 4. PROTECTED LOAN GENERATOR INTERFACE ---
 else:
+    # Sidebar logout feature
     with st.sidebar:
         st.write("### 👤 Team Session")
         if st.button("🔒 Log Out"):
@@ -45,6 +50,7 @@ else:
     st.write("Fill out the form below to receive your instant approval decision and letter.")
     st.divider()
 
+    # Build the Customer Form Setup
     st.subheader("📝 Customer Information")
     col1, col2 = st.columns(2)
 
@@ -58,6 +64,7 @@ else:
         loan_term = st.selectbox("Repayment Term", options=[12, 24, 36, 48, 60], index=2, format_func=lambda x: f"{x} Months")
         current_debts = st.number_input("Current Monthly Debt Payments ($)", min_value=0, value=500, step=50)
 
+    # Dynamic Underwriting and Financial Calculations
     st.divider()
     
     if st.button("🚀 Process My Loan Application", type="primary"):
@@ -66,10 +73,11 @@ else:
         elif loan_amount <= 0 or monthly_income <= 0:
             st.error("❌ Please enter valid loan and income amounts.")
         else:
-            fixed_interest_rate = 0.08  
-            origination_fee_pct = 0.025  
+            # Underwriting constants
+            fixed_interest_rate = 0.08      # 8% Fixed Base Interest Rate
+            origination_fee_pct = 0.025     # 2.5% Origination Fee
             
-            # A. Calculate Base Monthly Payment
+            # A. Calculate Base Monthly Payment using standard amortization formula
             monthly_interest_rate = fixed_interest_rate / 12
             est_monthly_payment = loan_amount * (monthly_interest_rate * (1 + monthly_interest_rate)**loan_term) / ((1 + monthly_interest_rate)**loan_term - 1)
             
@@ -80,11 +88,11 @@ else:
             total_interest = total_repayment_amount - loan_amount
             total_cost_of_loan = total_interest + origination_fee
             
-            # C. Solve for TILA Regulatory APR
+            # C. Dynamically Solve for Truth-in-Lending Act (TILA) Regulatory APR
             def solve_apr(net_cash, pmt, months):
                 low = 0.0
                 high = 1.0
-                for _ in range(100):  
+                for _ in range(100):  # Binary search loop
                     mid = (low + high) / 2
                     rate = mid / 12
                     if rate == 0:
@@ -100,7 +108,7 @@ else:
 
             calculated_apr = solve_apr(net_disbursed_amount, est_monthly_payment, loan_term)
             
-            # D. Payoff Date
+            # D. Calculate Dynamic Payoff Date
             today = datetime.date.today()
             payoff_date = today + relativedelta(months=loan_term)
             
@@ -114,15 +122,15 @@ else:
             else:
                 st.success("🎉 Congratulations! Your Avant loan has been provisionally approved.")
                 
-                # --- 5. GENERATE AND COMPILE PDF ---
+                # --- 5. GENERATE AND COMPILE COMPLETE PDF ---
                 pdf = FPDF()
                 pdf.add_page()
                 
-                # Draw Avant Header Blue Banner
+                # Draw Avant Header Brand Accent (Dark Blue Banner)
                 pdf.set_fill_color(20, 35, 60)
                 pdf.rect(0, 0, 210, 40, "F")
                 
-                # Avant Logo
+                # Text Avant Logo over the colored banner
                 pdf.set_text_color(255, 255, 255)
                 pdf.set_font("Helvetica", "B", 24)
                 pdf.cell(0, 15, "AVANT", align="L")
@@ -131,8 +139,10 @@ else:
                 pdf.cell(0, 5, "Personal Loans & Financial Services", align="L")
                 pdf.ln(15)
                 
-                # Document Body Formatting
+                # Reset font text color to dark grey for document body
                 pdf.set_text_color(40, 40, 40)
+                
+                # Document Metadata Header
                 pdf.set_font("Helvetica", "B", 16)
                 pdf.cell(0, 10, "APPROVAL LOAN LETTER", align="L")
                 pdf.ln(10)
@@ -142,6 +152,7 @@ else:
                 pdf.cell(0, 5, f"Offer Expiration: {(today + datetime.timedelta(days=30)).strftime('%B %d, %Y')}", align="L")
                 pdf.ln(10)
                 
+                # Content Block Paragraph
                 pdf.set_font("Helvetica", "", 11)
                 intro_text = (
                     f"Dear {full_name},\n\n"
@@ -152,6 +163,7 @@ else:
                 pdf.multi_cell(0, 6, intro_text)
                 pdf.ln(6)
                 
+                # Helper layout function for structured table rows
                 def add_table_row(label, val):
                     pdf.set_font("Helvetica", "B", 11)
                     pdf.cell(90, 9, f" {label}", border=1)
@@ -159,23 +171,17 @@ else:
                     pdf.cell(95, 9, f" {val}", border=1)
                     pdf.ln(9)
 
+                # Append financial data matrices into table grid
                 add_table_row("Requested Loan Amount (Principal):", f"${loan_amount:,.2f}")
                 add_table_row("Stated Base Interest Rate:", f"{fixed_interest_rate*100:.2f}% Fixed")
                 add_table_row("Annual Percentage Rate (APR):", f"{calculated_apr*100:.2f}% Dynamic")
-                                # --- PREVIOUS CODE ENDED HERE ---
-                add_table_row("Requested Loan Amount (Principal):", f"${loan_amount:,.2f}")
-                add_table_row("Stated Base Interest Rate:", f"{fixed_interest_rate*100:.2f}% Fixed")
-                add_table_row("Annual Percentage Rate (APR):", f"{calculated_apr*100:.2f}% Dynamic")
-                
-                # --- INSERT THIS MISSING CONTENT BELOW ---
-                # A. Complete the Financial Metrics Rows
                 add_table_row("Estimated Monthly Repayment:", f"${est_monthly_payment:,.2f} / Month")
                 add_table_row("Total Repayment Amount:", f"${total_repayment_amount:,.2f}")
                 add_table_row("Total Cost of Credit (Fees + Interest):", f"${total_cost_of_loan:,.2f}")
                 add_table_row("Final Scheduled Payoff Date:", payoff_date.strftime('%B %d, %Y'))
                 pdf.ln(10)
                 
-                # B. Add Regulatory & Closing Disclosures
+                # Regulatory Legal Disclosures Block
                 pdf.set_font("Helvetica", "B", 12)
                 pdf.cell(0, 8, "Important Account Terms & Disclosures", ln=1)
                 pdf.set_font("Helvetica", "I", 9)
@@ -190,43 +196,8 @@ else:
                 pdf.multi_cell(0, 5, disclosure_text)
                 pdf.ln(15)
                 
-                # C. Add Official Corporate Closing Signature Line
+                # Signature Execution Block
                 pdf.set_text_color(40, 40, 40)
                 pdf.set_font("Helvetica", "B", 10)
                 pdf.cell(0, 5, "Avant Underwriting Operations Group", ln=1)
                 pdf.set_font("Helvetica", "", 10)
-                pdf.cell(0, 5, "Electronic Verification Terminal Secure Stamp", ln=1)
-                
-                # --- SECURE BYTE COMPILATION AND DOWNLOAD BUTTON ---
-                pdf_bytes = bytes(pdf.output())
-                st.write("")
-                
-                st.download_button(
-                    label="📥 Download Official Approval PDF",
-                    data=pdf_bytes,
-                    file_name=f"Avant_Approval_{full_name.replace(' ', '_')}.pdf",
-                    mime="application/pdf",
-                    type="secondary"
-                )
-
-                                # --- REMOVE OLD ENCODING CODE ---
-                # Delete or comment out:
-                # pdf_string = pdf.output(dest='S')
-                # pdf_bytes = pdf_string.encode('latin-1')
-                
-                # --- INSERT NEW SECURE BYTE COMPILATION ---
-                # Directly output the document structure as a raw bytearray
-                pdf_bytes = bytes(pdf.output())
-                
-                # Add a structural separation spacing element
-                st.write("")
-                
-                # Display download widget underneath successful screen metrics
-                st.download_button(
-                    label="📥 Download Official Approval PDF",
-                    data=pdf_bytes,
-                    file_name=f"Avant_Approval_{full_name.replace(' ', '_')}.pdf",
-                    mime="application/pdf",
-                    type="secondary"
-                )
-                
