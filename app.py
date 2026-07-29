@@ -46,6 +46,8 @@ else:
         if st.button("🔒 Log Out"):
             st.session_state["logged_in"] = False
             st.session_state["app_processed"] = False
+            st.session_state["pdf_bytes"] = None
+            st.session_state["pdf_filename"] = ""
             st.rerun()
 
     st.title("💰 Instant Loan Approval Portal")
@@ -76,7 +78,6 @@ else:
             st.error("❌ Please enter valid loan and income amounts.")
             st.session_state["app_processed"] = False
         else:
-            # Underwriting constants
             fixed_interest_rate = 0.08  
             origination_fee_pct = 0.025  
             
@@ -117,14 +118,12 @@ else:
                 st.info("💡 Try requesting a lower loan amount or extending your repayment term.")
                 st.session_state["app_processed"] = False
             else:
-                # Flag application processing as successful
                 st.session_state["app_processed"] = True
                 
                 # --- PDF COMPILATION GENERATOR ---
                 pdf = FPDF()
                 pdf.add_page()
                 
-                # Avant Blue Banner Header
                 pdf.set_fill_color(20, 35, 60)
                 pdf.rect(0, 0, 210, 40, "F")
                 
@@ -192,7 +191,6 @@ else:
                 pdf.set_font("Helvetica", "", 10)
                 pdf.cell(0, 5, "Electronic Verification Terminal Secure Stamp", ln=1)
                 
-                # Store data to state safely to persist across button clicks
                 st.session_state["pdf_bytes"] = bytes(pdf.output())
                 st.session_state["pdf_filename"] = f"Avant_Approval_{full_name.replace(' ', '_')}.pdf"
                 st.rerun()
@@ -205,3 +203,6 @@ else:
         st.download_button(
             label="📥 Download Official Approval PDF",
             data=st.session_state["pdf_bytes"],
+            file_name=st.session_state["pdf_filename"],
+            mime="application/pdf",
+            type="primary",
