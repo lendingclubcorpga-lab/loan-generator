@@ -13,7 +13,7 @@ TEAM_ACCOUNTS = {
     "agent2": "SecureLoanPass2"
 }
 
-# Initialize session state flags safely
+# Safely initialize session state properties
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 if "app_processed" not in st.session_state:
@@ -43,7 +43,16 @@ if not st.session_state["logged_in"]:
 else:
     with st.sidebar:
         st.write("### 👤 Team Session")
-        if st.button("🔒 Log Out"):
+        
+        # Reset current customer application session helper
+        if st.session_state["app_processed"]:
+            if st.button("🔄 Clear & New Application", type="secondary"):
+                st.session_state["app_processed"] = False
+                st.session_state["pdf_bytes"] = None
+                st.session_state["pdf_filename"] = ""
+                st.rerun()
+                
+        if st.button("🔒 Log Out", type="primary"):
             st.session_state["logged_in"] = False
             st.session_state["app_processed"] = False
             st.session_state["pdf_bytes"] = None
@@ -64,7 +73,6 @@ else:
 
     with col2:
         loan_amount = st.number_input("Requested Loan Amount ($)", min_value=0, value=5000, step=500)
-        # FIXED: Numbers are explicitly closed inside brackets
         loan_term = st.selectbox("Repayment Term", options=[12, 24, 36, 48, 60], index=2, format_func=lambda x: f"{x} Months")
         current_debts = st.number_input("Current Monthly Debt Payments ($)", min_value=0, value=500, step=50)
 
@@ -74,10 +82,8 @@ else:
     if st.button("🚀 Process My Loan Application", type="primary"):
         if not full_name or not email:
             st.error("❌ Please fill in your name and email address to proceed.")
-            st.session_state["app_processed"] = False
         elif loan_amount <= 0 or monthly_income <= 0:
             st.error("❌ Please enter valid loan and income amounts.")
-            st.session_state["app_processed"] = False
         else:
             fixed_interest_rate = 0.08  
             origination_fee_pct = 0.025  
@@ -119,8 +125,6 @@ else:
                 st.info("💡 Try requesting a lower loan amount or extending your repayment term.")
                 st.session_state["app_processed"] = False
             else:
-                st.session_state["app_processed"] = True
-                
                 # --- PDF COMPILATION GENERATOR ---
                 pdf = FPDF()
                 pdf.add_page()
@@ -195,12 +199,10 @@ else:
                 pdf.cell(0, 5, "Electronic Verification Terminal Secure Stamp")
                 pdf.ln(5)
                 
-                # Safely capture binary byte metrics natively from fpdf2 engine
+                # Save binary content to file state metrics safely
                 st.session_state["pdf_bytes"] = bytes(pdf.output())
                 st.session_state["pdf_filename"] = f"Avant_Approval_{full_name.replace(' ', '_')}.pdf"
+                st.session_state["app_processed"] = True
                 st.rerun()
 
-    # --- 5. PERSISTENT UI OUTSIDE BUTTON LIFECYCLE ---
-    # This sits completely independent of processing branches to maintain application download access
-    if st.session_state["app_processed"]:
-        st.success("🎉 Congratulations! Your Avant loan has been provisionally approved.")
+    # --- 5. PERSISTENT REGISTRATION VIEW ---
