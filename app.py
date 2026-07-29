@@ -64,6 +64,7 @@ else:
 
     with col2:
         loan_amount = st.number_input("Requested Loan Amount ($)", min_value=0, value=5000, step=500)
+        # FIXED: Numbers added inside the options array list here
         loan_term = st.selectbox("Repayment Term", options=[12, 24, 36, 48, 60], index=2, format_func=lambda x: f"{x} Months")
         current_debts = st.number_input("Current Monthly Debt Payments ($)", min_value=0, value=500, step=50)
 
@@ -204,5 +205,3 @@ else:
             label="📥 Download Official Approval PDF",
             data=st.session_state["pdf_bytes"],
             file_name=st.session_state["pdf_filename"],
-            mime="application/pdf",
-            type="primary",
