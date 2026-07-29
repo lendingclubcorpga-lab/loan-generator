@@ -162,18 +162,19 @@ else:
                 add_table_row("Requested Loan Amount (Principal):", f"${loan_amount:,.2f}")
                 add_table_row("Stated Base Interest Rate:", f"{fixed_interest_rate*100:.2f}% Fixed")
                 add_table_row("Annual Percentage Rate (APR):", f"{calculated_apr*100:.2f}% Dynamic")
+                                # --- REMOVE OLD ENCODING CODE ---
+                # Delete or comment out:
+                # pdf_string = pdf.output(dest='S')
+                # pdf_bytes = pdf_string.encode('latin-1')
                 
-                # --- NEW COMPILATION AND DOWNLOAD BUTTON CODE ---
-                # 1. Output the PDF as a string from memory
-                pdf_string = pdf.output(dest='S')
+                # --- INSERT NEW SECURE BYTE COMPILATION ---
+                # Directly output the document structure as a raw bytearray
+                pdf_bytes = bytes(pdf.output())
                 
-                # 2. Encode it into standard binary formatting
-                pdf_bytes = pdf_string.encode('latin-1')
-                
-                # 3. Add a separation spacing element
+                # Add a structural separation spacing element
                 st.write("")
                 
-                # 4. Display download widget underneath successful screen metrics
+                # Display download widget underneath successful screen metrics
                 st.download_button(
                     label="📥 Download Official Approval PDF",
                     data=pdf_bytes,
@@ -181,3 +182,4 @@ else:
                     mime="application/pdf",
                     type="secondary"
                 )
+                
