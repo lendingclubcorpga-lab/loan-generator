@@ -27,7 +27,6 @@ with col2:
 st.divider()
 
 # --- 3. LIVE FINANCIAL CALCULATIONS ---
-# These run natively on change to prevent conditional button state freezing
 fixed_interest_rate = 0.08  
 origination_fee_pct = 0.025  
 
@@ -56,10 +55,13 @@ def solve_apr(net_cash, pmt, months):
     return (low + high) / 2
 
 calculated_apr = solve_apr(net_disbursed_amount, est_monthly_payment, loan_term)
-today = datetime.date.today()
+
+# D. Capture Precise Application Generation Timestamp
+now = datetime.datetime.now()
+today = now.date()
 payoff_date = today + relativedelta(months=loan_term)
 
-# D. Underwriting Framework (DTI check)
+# E. Underwriting Framework (DTI check)
 total_future_debt = current_debts + est_monthly_payment
 dti_ratio = total_future_debt / monthly_income
 
@@ -103,7 +105,9 @@ else:
     pdf.cell(0, 10, "APPROVAL LOAN LETTER", align="L")
     pdf.ln(10)
     pdf.set_font("Helvetica", "", 10)
-    pdf.cell(0, 5, f"Issued Date: {today.strftime('%B %d, %Y')}", align="L")
+    
+    # ADDED: Precise Date & Time inside document headers
+    pdf.cell(0, 5, f"Issued Timestamp: {now.strftime('%B %d, %Y at %I:%M %p')}", align="L")
     pdf.ln(5)
     pdf.cell(0, 5, f"Offer Expiration: {(today + datetime.timedelta(days=30)).strftime('%B %d, %Y')}", align="L")
     pdf.ln(10)
@@ -150,15 +154,37 @@ else:
         "Funds are dispatched via ACH network transfer within 1 business day of final approval validation."
     )
     pdf.multi_cell(0, 5, disclosure_text)
-    pdf.ln(15)
+    pdf.ln(12)
     
-    # Signature Closings Text
+    # --- ADDED: FORMAL SIGNATURE LAYOUT BLOCK ---
     pdf.set_text_color(40, 40, 40)
+    pdf.set_font("Helvetica", "B", 11)
+    pdf.cell(0, 6, "Execution of Terms & Authorization:")
+    pdf.ln(6)
+    
+    pdf.set_font("Helvetica", "", 10)
+    pdf.cell(0, 5, "By signing below, the applicant acknowledges receipt of these preliminary Truth-in-Lending terms.")
+    pdf.ln(15) # Spacing for manual handwriting signatures
+    
+    # Double column layout lines for physical client signature blocks
+    pdf.cell(90, 0, "", border="T") # Underline stroke for left side
+    pdf.cell(10, 0, "")             # Spacing gap divider
+    pdf.cell(85, 0, "", border="T") # Underline stroke for right side
+    pdf.ln(2)
+    
+    pdf.set_font("Helvetica", "B", 9)
+    pdf.cell(90, 5, f"Applicant Signature: {full_name.upper()}")
+    pdf.cell(10, 5, "")
+    pdf.cell(85, 5, f"Date Signed: {today.strftime('%m/%d/%Y')}")
+    pdf.ln(12)
+    
+    # Corporate Operations Verification Badging
     pdf.set_font("Helvetica", "B", 10)
     pdf.cell(0, 5, "Avant Underwriting Operations Group")
-    pdf.ln(5)
-    pdf.set_font("Helvetica", "", 10)
-    pdf.cell(0, 5, "Electronic Verification Terminal Secure Stamp")
+    pdf.ln(4)
+    pdf.set_font("Helvetica", "I", 9)
+    pdf.set_text_color(120, 120, 120)
+    pdf.cell(0, 5, f"System Secure Hash Stamp ID: [AV-SEC-{now.strftime('%Y%m%d%H%M%S')}]")
     pdf.ln(10)
     
     # Complete document in safe byte formatting natively
