@@ -3,44 +3,38 @@ from fpdf import FPDF
 import datetime
 from dateutil.relativedelta import relativedelta
 
-# --- 1. TEAM LOGIN CREDENTIALS CONFIGURATION ---
-# Define the authorized User IDs and Passwords for your team
+# --- 1. GLOBAL PAGE CONFIGURATION ---
+# Crucial: This MUST be the first Streamlit command called and can only be called once!
+st.set_page_config(page_title="Avant Instant Loan Portal", page_icon="💰")
+
+# --- 2. TEAM LOGIN CREDENTIALS CONFIGURATION ---
 TEAM_ACCOUNTS = {
     "admin": "AvantTeam2026!",
     "agent1": "SecureLoanPass1",
     "agent2": "SecureLoanPass2"
 }
 
-# Initialize login state tracking if it doesn't exist
 if "logged_in" not in st.session_state:
     st.session_state["logged_in"] = False
 
-# --- 2. LOGIN SCREEN INTERFACE ---
+# --- 3. LOGIN SCREEN INTERFACE ---
 if not st.session_state["logged_in"]:
-    st.set_page_config(page_title="Team Login - Avant Portal", page_icon="🔒")
     st.title("🔒 Team Portal Login")
     st.write("Please enter your authorized Team credentials to access the loan generator.")
-    
     st.divider()
     
-    # Input fields for login
     user_id = st.text_input("User ID", placeholder="Enter your user ID")
     password = st.text_input("Password", type="password", placeholder="Enter your password")
     
     if st.button("Log In", type="primary"):
-        # Check if the User ID exists and the password matches perfectly
         if user_id in TEAM_ACCOUNTS and TEAM_ACCOUNTS[user_id] == password:
             st.session_state["logged_in"] = True
-            st.rerun()  # Refresh the app immediately to show the calculator
+            st.rerun() 
         else:
             st.error("❌ Invalid User ID or Password. Please try again.")
 
-# --- 3. PROTECTED LOAN GENERATOR INTERFACE ---
+# --- 4. PROTECTED LOAN GENERATOR INTERFACE ---
 else:
-    # Page Title and Header Setup
-    st.set_page_config(page_title="Avant Instant Loan Portal", page_icon="💰")
-    
-    # Add a Log Out button in the sidebar for security
     with st.sidebar:
         st.write("### 👤 Team Session")
         if st.button("🔒 Log Out"):
@@ -49,10 +43,8 @@ else:
 
     st.title("💰 Instant Loan Approval Portal")
     st.write("Fill out the form below to receive your instant approval decision and letter.")
-
     st.divider()
 
-    # Build the Customer Form Setup
     st.subheader("📝 Customer Information")
     col1, col2 = st.columns(2)
 
@@ -66,19 +58,18 @@ else:
         loan_term = st.selectbox("Repayment Term", options=[12, 24, 36, 48, 60], index=2, format_func=lambda x: f"{x} Months")
         current_debts = st.number_input("Current Monthly Debt Payments ($)", min_value=0, value=500, step=50)
 
-    # Dynamic Underwriting and Financial Calculations
     st.divider()
+    
     if st.button("🚀 Process My Loan Application", type="primary"):
         if not full_name or not email:
             st.error("❌ Please fill in your name and email address to proceed.")
         elif loan_amount <= 0 or monthly_income <= 0:
             st.error("❌ Please enter valid loan and income amounts.")
         else:
-            # Define constants
-            fixed_interest_rate = 0.08  # 8% Fixed Base Interest Rate
-            origination_fee_pct = 0.025  # 2.5% Origination Fee
+            fixed_interest_rate = 0.08  
+            origination_fee_pct = 0.025  
             
-            # A. Calculate Base Monthly Payment using standard amortization
+            # A. Calculate Base Monthly Payment
             monthly_interest_rate = fixed_interest_rate / 12
             est_monthly_payment = loan_amount * (monthly_interest_rate * (1 + monthly_interest_rate)**loan_term) / ((1 + monthly_interest_rate)**loan_term - 1)
             
@@ -89,11 +80,11 @@ else:
             total_interest = total_repayment_amount - loan_amount
             total_cost_of_loan = total_interest + origination_fee
             
-            # C. Dynamically Solve for Truth-in-Lending Act (TILA) Regulatory APR
+            # C. Solve for TILA Regulatory APR
             def solve_apr(net_cash, pmt, months):
                 low = 0.0
                 high = 1.0
-                for _ in range(100):  # Binary search to find exact rate
+                for _ in range(100):  
                     mid = (low + high) / 2
                     rate = mid / 12
                     if rate == 0:
@@ -109,7 +100,7 @@ else:
 
             calculated_apr = solve_apr(net_disbursed_amount, est_monthly_payment, loan_term)
             
-            # D. Calculate Dynamic Payoff Date
+            # D. Payoff Date
             today = datetime.date.today()
             payoff_date = today + relativedelta(months=loan_term)
             
@@ -123,15 +114,15 @@ else:
             else:
                 st.success("🎉 Congratulations! Your Avant loan has been provisionally approved.")
                 
-                # 4. Generate the Fixed PDF Letter
+                # --- 5. GENERATE AND COMPILE PDF ---
                 pdf = FPDF()
                 pdf.add_page()
                 
-                # Draw Avant Style Header Brand Accent (Dark Blue Banner)
+                # Draw Avant Header Blue Banner
                 pdf.set_fill_color(20, 35, 60)
                 pdf.rect(0, 0, 210, 40, "F")
                 
-                # Text Avant Logo over the colored banner
+                # Avant Logo
                 pdf.set_text_color(255, 255, 255)
                 pdf.set_font("Helvetica", "B", 24)
                 pdf.cell(0, 15, "AVANT", align="L")
@@ -140,10 +131,8 @@ else:
                 pdf.cell(0, 5, "Personal Loans & Financial Services", align="L")
                 pdf.ln(15)
                 
-                # Reset font text color to dark grey for document body
+                # Document Body Formatting
                 pdf.set_text_color(40, 40, 40)
-                
-                # Document Metadata Header
                 pdf.set_font("Helvetica", "B", 16)
                 pdf.cell(0, 10, "APPROVAL LOAN LETTER", align="L")
                 pdf.ln(10)
@@ -153,7 +142,6 @@ else:
                 pdf.cell(0, 5, f"Offer Expiration: {(today + datetime.timedelta(days=30)).strftime('%B %d, %Y')}", align="L")
                 pdf.ln(10)
                 
-                # Content Block Paragraph
                 pdf.set_font("Helvetica", "", 11)
                 intro_text = (
                     f"Dear {full_name},\n\n"
@@ -164,7 +152,6 @@ else:
                 pdf.multi_cell(0, 6, intro_text)
                 pdf.ln(6)
                 
-                # Terms Grid Table Layout
                 def add_table_row(label, val):
                     pdf.set_font("Helvetica", "B", 11)
                     pdf.cell(90, 9, f" {label}", border=1)
@@ -175,30 +162,22 @@ else:
                 add_table_row("Requested Loan Amount (Principal):", f"${loan_amount:,.2f}")
                 add_table_row("Stated Base Interest Rate:", f"{fixed_interest_rate*100:.2f}% Fixed")
                 add_table_row("Annual Percentage Rate (APR):", f"{calculated_apr*100:.2f}% Dynamic")
-                add_table_row("Origination Fee (2.5%):", f"${origination_fee:,.2f}")
-                add_table_row("Monthly Payment Amount:", f"${est_monthly_payment:,.2f}")
-                add_table_row("Total Interest:", f"${total_interest:,.2f}")
-                add_table_row("Total Cost of Loan (Interest + Fees):", f"${total_cost_of_loan:,.2f}")
-                add_table_row("Total Repayment Amount:", f"${total_repayment_amount:,.2f}")
-                add_table_row("Payoff Date:", payoff_date.strftime("%B %d, %Y"))
                 
-                pdf.ln(8)
+                # --- NEW COMPILATION AND DOWNLOAD BUTTON CODE ---
+                # 1. Output the PDF as a string from memory
+                pdf_string = pdf.output(dest='S')
                 
-                # Legal Boilerplate Terms & Conditions Layout
-                pdf.set_font("Helvetica", "B", 10)
-                pdf.cell(0, 5, "Mandatory Regulatory Disclosures:")
-                pdf.ln(5)
-                pdf.set_font("Helvetica", "I", 9)
-                terms_text = (
-                    "1. This approval represents a conditional evaluation and does not constitute an explicit binding agreement or contract.\n"
-                    "2. Final funding remains conditional upon complete verification of identity, credit history validation, and income documentation.\n"
-                    "3. Origination fees are deducted directly from loan proceeds at funding and are incorporated into your total cost schedule.\n"
-                    "4. APR formulas are derived using strict financial internal rate of return metrics based on actual net disbursed loan balances."
+                # 2. Encode it into standard binary formatting
+                pdf_bytes = pdf_string.encode('latin-1')
+                
+                # 3. Add a separation spacing element
+                st.write("")
+                
+                # 4. Display download widget underneath successful screen metrics
+                st.download_button(
+                    label="📥 Download Official Approval PDF",
+                    data=pdf_bytes,
+                    file_name=f"Avant_Approval_{full_name.replace(' ', '_')}.pdf",
+                    mime="application/pdf",
+                    type="secondary"
                 )
-                pdf.multi_cell(0, 5, terms_text)
-                
-                pdf.ln(15)
-                
-                # 5. Universal Version-Safe Signature Section
-                pdf.set_font("Helvetica", "B", 11)
-                pdf.cell(0, 6, "Acknowledgment and Acceptance of Terms:")
