@@ -110,7 +110,7 @@ else:
     pdf.set_font("Helvetica", "", 10)
     
     # ADDED: Precise Date & Time inside document headers
-    pdf.cell(0, 5, f"Issued Timestamp: {now_ny.strftime('%B %d, %Y at %I:%M %p')}", align="L")
+    pdf.cell(0, 5, f"Issued Timestamp: {now.strftime('%B %d, %Y at %I:%M %p')}", align="L")
     pdf.ln(5)
     pdf.cell(0, 5, f"Offer Expiration: {(today + datetime.timedelta(days=30)).strftime('%B %d, %Y')}", align="L")
     pdf.ln(10)
