@@ -60,7 +60,7 @@ calculated_apr = solve_apr(net_disbursed_amount, est_monthly_payment, loan_term)
 
 # D. Capture Precise Application Generation Timestamp
 ny_tz = ZoneInfo("America/New_York")
-now_ny = datetime.datetime.now(ny_tz)
+now = datetime.datetime.now(ny_tz)
 today = now.date()
 payoff_date = today + relativedelta(months=loan_term)
 
