@@ -2,6 +2,8 @@ import streamlit as st
 from fpdf import FPDF
 import datetime
 from dateutil.relativedelta import relativedelta
+import datetime
+from zoneinfo import ZoneInfo  # Paste this line here
 
 # --- 1. GLOBAL PAGE CONFIGURATION ---
 st.set_page_config(page_title="Avant Instant Loan Portal", page_icon="💰")
@@ -57,7 +59,8 @@ def solve_apr(net_cash, pmt, months):
 calculated_apr = solve_apr(net_disbursed_amount, est_monthly_payment, loan_term)
 
 # D. Capture Precise Application Generation Timestamp
-now = datetime.datetime.now()
+ny_tz = ZoneInfo("America/New_York")
+now_ny = datetime.datetime.now(ny_tz)
 today = now.date()
 payoff_date = today + relativedelta(months=loan_term)
 
@@ -107,7 +110,7 @@ else:
     pdf.set_font("Helvetica", "", 10)
     
     # ADDED: Precise Date & Time inside document headers
-    pdf.cell(0, 5, f"Issued Timestamp: {now.strftime('%B %d, %Y at %I:%M %p')}", align="L")
+    pdf.cell(0, 5, f"Issued Timestamp: {now_ny.strftime('%B %d, %Y at %I:%M %p')}", align="L")
     pdf.ln(5)
     pdf.cell(0, 5, f"Offer Expiration: {(today + datetime.timedelta(days=30)).strftime('%B %d, %Y')}", align="L")
     pdf.ln(10)
